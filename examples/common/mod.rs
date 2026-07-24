@@ -10,13 +10,19 @@ use std::{
 
 use elf_loader::linker::SearchPathResolver;
 
-const RUST_FIXTURES: [(&str, &str); 3] = [("liba", "a"), ("libb", "b"), ("libc", "c")];
+const RUST_FIXTURES: &[(&str, &str)] = &[
+    ("liba", "a"),
+    ("libb", "b"),
+    ("libc", "c"),
+    ("nested", "nested"),
+];
 static FIXTURE_BUILD_LOCK: Mutex<()> = Mutex::new(());
 
 pub(crate) struct FixturePaths {
     pub(crate) liba: PathBuf,
     pub(crate) libb: PathBuf,
     pub(crate) libc: PathBuf,
+    pub(crate) libnested: PathBuf,
     pub(crate) a_object: PathBuf,
     pub(crate) b_object: PathBuf,
     pub(crate) c_object: PathBuf,
@@ -29,6 +35,7 @@ impl FixturePaths {
             liba: rust_target_dir.join("liba.so"),
             libb: rust_target_dir.join("libb.so"),
             libc: rust_target_dir.join("libc.so"),
+            libnested: rust_target_dir.join("libnested.so"),
             a_object: rust_target_dir.join("a.o"),
             b_object: rust_target_dir.join("b.o"),
             c_object: rust_target_dir.join("c.o"),
@@ -50,6 +57,12 @@ impl FixturePaths {
 
     pub(crate) fn libc_str(&self) -> &str {
         self.libc
+            .to_str()
+            .expect("fixture path must be valid UTF-8")
+    }
+
+    pub(crate) fn libnested_str(&self) -> &str {
+        self.libnested
             .to_str()
             .expect("fixture path must be valid UTF-8")
     }
@@ -120,12 +133,46 @@ fn ensure_scope(scope: FixtureScope) {
 }
 
 fn build_rust_fixtures(target_dir: &Path) {
+    let cargo = env::var("CARGO").unwrap_or_else(|_| "cargo".to_owned());
     let rustc = env::var("RUSTC").unwrap_or_else(|_| "rustc".to_owned());
     let rust_target = rust_fixture_target();
 
     for (filename, crate_name) in RUST_FIXTURES {
+        let dylib_name = format!("lib{crate_name}.so");
+
+        if !filename.starts_with("lib") {
+            let arch = target_dir.file_name().unwrap();
+            let target_dir = target_dir.parent().unwrap();
+
+            let mut cmd = Command::new(&cargo);
+            cmd.arg("build")
+                .arg("--release")
+                .arg("--manifest-path")
+                .arg(fixture_dir().join(filename).join("Cargo.toml"))
+                .arg("--target-dir")
+                .arg(target_dir);
+
+            let mut target_dir_target = target_dir.to_owned();
+
+            if let Some(target) = rust_target.as_deref() {
+                cmd.arg("--target").arg(target);
+                target_dir_target = target_dir_target.join(target);
+            }
+            // cmd.env("CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER", "rust-lld");
+
+            run(&mut cmd, &format!("compile {filename}.so"));
+
+            fs::copy(
+                target_dir.join(arch).join("release").join(&dylib_name),
+                target_dir.join(arch).join(dylib_name),
+            )
+            .unwrap();
+
+            continue;
+        }
+
         let source = fixture_dir().join(format!("{filename}.rs"));
-        let dylib = target_dir.join(format!("lib{crate_name}.so"));
+        let dylib = target_dir.join(dylib_name);
         let dylib_dep = rust_fixture_dylib_dependency(crate_name);
         let needs_dylib_rebuild = needs_rebuild(&dylib, [&source])
             || dylib_dep.is_some_and(|dep| !dylib_mentions_needed(&dylib, dep))

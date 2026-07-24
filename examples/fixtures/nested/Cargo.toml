@@ -1,0 +1,13 @@
+[package]
+name = "nested"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+elf_loader = { path = "../../..", default-features = false, features = ["libc"] }
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+panic = "abort"

@@ -21,7 +21,7 @@ impl DomainId {
     pub fn new() -> Self {
         Self(
             NEXT_DOMAIN_ID
-                .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
+                .try_update(Ordering::Relaxed, Ordering::Relaxed, |id| id.checked_add(1))
                 .expect("runtime domain identity space is exhausted"),
         )
     }

@@ -30,6 +30,9 @@ members = [
 	"tools/gen-elf",
 	"tests/riscv64",
 ]
+exclude = [
+	"examples/fixtures/nested",
+]
 
 [workspace.dependencies]
 syscalls = { version = "0.8.1", default-features = false }
@@ -103,6 +106,7 @@ bitflags = "2.9.0"
 [dev-dependencies]
 criterion = "0.8.2"
 libloading = "0.9.0"
+libunwind = "1"
 env_logger = "0.11.6"
 gen-elf = { path = "tools/gen-elf" }
 object = { workspace = true, features = ["write"] }
