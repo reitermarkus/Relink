@@ -25,6 +25,7 @@ static NEXT_INSTANCE: AtomicUsize = AtomicUsize::new(1);
 
 #[inline]
 fn next_instance() -> usize {
+    #[allow(deprecated)]
     NEXT_INSTANCE
         .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |value| {
             value.checked_add(1)

@@ -114,7 +114,7 @@ where
 
     /// Returns the committed module id associated with `key`.
     #[inline]
-    pub fn module_id(&self, key: &str) -> Option<ModuleId> {
+    pub fn module_id(&self, key: impl AsRef<[u8]>) -> Option<ModuleId> {
         self.committed
             .module_for_key(key)
             .map(|slot| self.committed.make_module_id(slot))

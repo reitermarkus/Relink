@@ -67,8 +67,8 @@ impl MultiBinaryResolver {
 impl KeyResolver for MultiBinaryResolver {
     type Root = &'static str;
 
-    fn root_key<'a>(&self, root: &'a Self::Root) -> &'a str {
-        root
+    fn root_key<'a>(&self, root: &'a Self::Root) -> &'a [u8] {
+        root.as_bytes()
     }
 
     fn resolve<'cfg>(

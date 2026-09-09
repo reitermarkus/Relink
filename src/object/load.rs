@@ -111,7 +111,7 @@ where
         observer.on_after_object_load(AfterObjectLoadEvent::new(&mut raw))?;
         let base = raw.segments().base();
 
-        logging::info!("Loaded object: {} at {}", raw.name(), base);
+        logging::info!("Loaded object: {} at {}", raw.name().escape_ascii(), base);
 
         Ok(raw)
     }

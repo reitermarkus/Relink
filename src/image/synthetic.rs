@@ -557,8 +557,8 @@ where
     Tls: TlsResolver<Arch> + 'static,
 {
     #[inline]
-    fn name(&self) -> &str {
-        &self.name
+    fn name(&self) -> &[u8] {
+        self.name.as_bytes()
     }
 
     #[inline]

@@ -100,7 +100,7 @@ impl<'a> CandidateRequest<'a> {
 
     /// Returns the owner name for caller-aware roots and dependencies.
     #[inline]
-    pub fn owner_name(&self) -> &'a str {
+    pub fn owner_name(&self) -> &'a [u8] {
         self.owner().name()
     }
 
@@ -190,10 +190,8 @@ impl SearchPathResolver {
     }
 
     /// Appends a fixed search directory.
-    pub fn push_fixed_dir(&mut self, dir: impl Into<PathBuf>) -> &mut Self {
-        self.push_entry(SearchPathEntry::Dir(SharedDir::new(
-            normalize_dir(dir.into()).into_string(),
-        )))
+    pub fn push_fixed_dir(&mut self, dir: impl AsRef<Path>) -> &mut Self {
+        self.push_entry(SearchPathEntry::Dir(SharedDir::new(normalize_dir(dir))))
     }
 
     /// Appends a callback that can provide search directories per request.
@@ -288,7 +286,7 @@ impl SearchPathResolver {
         if dir.is_missing() {
             return Ok(None);
         }
-        candidate.set_joined(dir.path(), requested.as_str());
+        candidate.set_joined(dir.path(), requested);
         Self::try_candidate::<Arch>(candidate, Some(dir), true, incompatible)
     }
 
@@ -315,8 +313,8 @@ where
     type Root = PathBuf;
 
     #[inline]
-    fn root_key<'a>(&self, root: &'a Self::Root) -> &'a str {
-        root.as_str()
+    fn root_key<'a>(&self, root: &'a Self::Root) -> &'a [u8] {
+        root.as_bytes()
     }
 
     fn resolve<'cfg>(
@@ -331,8 +329,8 @@ where
 
         let mut incompatible = None;
 
-        let requested_value = request.requested().as_str();
-        let expanded = if requested_value.contains('$') {
+        let requested_value = request.requested();
+        let expanded = if requested_value.as_bytes().contains(&b'$') {
             let Some(expanded) = request.tokens().expand(requested_value, request.origin()) else {
                 return Err(req.unresolved());
             };
@@ -395,7 +393,7 @@ where
                     provided.clear();
                     provider(request, &mut provided)?;
                     for dir in &provided {
-                        candidate.set_joined(dir, requested.as_str());
+                        candidate.set_joined(dir, requested);
                         if let Some(file) =
                             Self::try_candidate::<Arch>(&candidate, None, true, &mut incompatible)?
                         {
