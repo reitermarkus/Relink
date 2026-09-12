@@ -469,7 +469,7 @@ mod tests {
         request: CandidateRequest<'_>,
     ) -> Option<PathBuf> {
         let req = ResolveRequest::dependency(
-            request.requested().as_str(),
+            core::str::from_utf8(request.requested().as_bytes()).unwrap(),
             request.owner(),
             request.tokens(),
             request.loaders,
@@ -479,7 +479,7 @@ mod tests {
             .into_parts()
             .0
         {
-            ResolvedKind::Load(reader) => Some(PathBuf::from(reader.path().as_str())),
+            ResolvedKind::Load(reader) => Some(PathBuf::from(reader.path())),
             ResolvedKind::Module { .. } => None,
         }
     }
@@ -526,8 +526,8 @@ mod tests {
         assert!(resolve_path(&resolver, request).is_none());
         install_elf(&library);
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            library.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            library.as_os_str().as_encoded_bytes()
         );
     }
 
@@ -550,8 +550,8 @@ mod tests {
         assert!(resolve_path(&resolver, request).is_none());
         install_elf(&library);
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            library.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            library.as_os_str().as_encoded_bytes()
         );
         fs::remove_dir_all(dir).unwrap();
     }
@@ -576,8 +576,8 @@ mod tests {
         assert!(resolve_path(&resolver, request).is_none());
         install_elf(&library);
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            library.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            library.as_os_str().as_encoded_bytes()
         );
     }
 
@@ -598,8 +598,8 @@ mod tests {
         resolver.push_rpath();
 
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            expected.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            expected.as_os_str().as_encoded_bytes()
         );
     }
 
@@ -618,8 +618,8 @@ mod tests {
         let resolver = SearchPathResolver::new();
 
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            expected.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            expected.as_os_str().as_encoded_bytes()
         );
     }
 
@@ -645,8 +645,8 @@ mod tests {
         resolver.push_runpath();
 
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            expected.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            expected.as_os_str().as_encoded_bytes()
         );
     }
 
@@ -672,8 +672,8 @@ mod tests {
         let resolver = SearchPathResolver::new();
 
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            expected.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            expected.as_os_str().as_encoded_bytes()
         );
     }
 
@@ -722,14 +722,14 @@ mod tests {
         resolver.push_fixed_dir(fixed.to_str().unwrap());
         resolver.push_runpath();
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            fixed_candidate.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            fixed_candidate.as_os_str().as_encoded_bytes()
         );
 
         fs::remove_file(fixed_candidate).unwrap();
         assert_eq!(
-            resolve_path(&resolver, request).unwrap().as_str(),
-            run_candidate.to_str().unwrap()
+            resolve_path(&resolver, request).unwrap().as_bytes(),
+            run_candidate.as_os_str().as_encoded_bytes()
         );
     }
 

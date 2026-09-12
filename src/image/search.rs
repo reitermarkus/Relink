@@ -445,8 +445,8 @@ mod tests {
         let second = second.runpath.as_deref().unwrap();
 
         assert_eq!(first.len(), 2);
-        assert_eq!(first[0].as_ref(), "/opt/app/lib");
-        assert_eq!(first[1].as_ref(), "/usr/lib");
+        assert_eq!(first[0].as_bytes(), b"/opt/app/lib");
+        assert_eq!(first[1].as_bytes(), b"/usr/lib");
         assert!(Arc::ptr_eq(&first[0].0, &second[0].0));
         assert!(Arc::ptr_eq(&first[1].0, &second[1].0));
     }

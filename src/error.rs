@@ -3,7 +3,7 @@
 use crate::{
     elf::{ElfClass, ElfDataEncoding, ElfDynamicTag, ElfFileType, ElfMachine},
     image::ModuleInstanceId,
-    input::{ModuleSourceId, PathBuf},
+    input::ModuleSourceId,
     linker::{ContextId, ModuleId},
     runtime::DomainId,
     tls::TlsModuleId,
@@ -20,7 +20,7 @@ pub enum IoError {
     /// `open failed for {path} with error: {code}`
     OpenFailed {
         /// Path that failed to open.
-        path: PathBuf,
+        path: Box<[u8]>,
         /// Platform error code returned by the open operation.
         code: u32,
     },
@@ -83,7 +83,7 @@ impl Display for IoError {
             }
             Self::NullByteInPath => f.write_str("path contains an interior NUL byte"),
             Self::OpenFailed { path, code } => {
-                write!(f, "open failed for {} with error: {code}", path)
+                write!(f, "open failed for {} with error: {code}", path.escape_ascii())
             }
             Self::FileInfoFailed { code } => {
                 write!(f, "file information query failed with error: {code}")

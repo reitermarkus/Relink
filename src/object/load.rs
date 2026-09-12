@@ -331,7 +331,7 @@ mod tests {
             &mut self,
             event: AfterObjectLoadEvent<'_, ObjectData, NativeArch, R, Tls>,
         ) -> Result<()> {
-            self.after_object_name_seen = event.raw().name() == "metadata.o";
+            self.after_object_name_seen = event.raw().name() == b"metadata.o";
             self.after_object_load_seen = true;
             Ok(())
         }

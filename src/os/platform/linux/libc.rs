@@ -238,7 +238,7 @@ impl RawFile {
         let fd = unsafe { libc::open(name.as_ptr(), O_RDONLY) };
         if fd == -1 {
             return Err(IoError::OpenFailed {
-                path: path.into(),
+                path: path.as_bytes().into(),
                 code: last_os_error_code(),
             }
             .into());

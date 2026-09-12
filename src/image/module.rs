@@ -713,9 +713,9 @@ mod tests {
         assert_eq!(snapshot.len(), 1);
         assert_eq!(scope.len(), 2);
 
-        scope.retain(|module| module.name() == "second");
-        assert_eq!(snapshot.iter().next().unwrap().name(), "first");
-        assert_eq!(scope.iter().next().unwrap().name(), "second");
+        scope.retain(|module| module.name() == b"second");
+        assert_eq!(snapshot.iter().next().unwrap().name(), b"first");
+        assert_eq!(scope.iter().next().unwrap().name(), b"second");
     }
 
     #[test]
@@ -739,7 +739,7 @@ mod tests {
                 .iter()
                 .map(|module| module.name())
                 .collect::<Vec<_>>(),
-            ["first"]
+            ["first".as_bytes()]
         );
         assert_eq!(
             weak.upgrade_local()
@@ -747,7 +747,7 @@ mod tests {
                 .iter()
                 .map(|module| module.name())
                 .collect::<Vec<_>>(),
-            ["local"]
+            ["local".as_bytes()]
         );
 
         let deferred = weak.upgrade_local().unwrap();
@@ -757,14 +757,14 @@ mod tests {
                 .iter()
                 .map(|module| module.name())
                 .collect::<Vec<_>>(),
-            ["second"]
+            ["second".as_bytes()]
         );
         assert_eq!(
             deferred
                 .iter()
                 .map(|module| module.name())
                 .collect::<Vec<_>>(),
-            ["local"]
+            ["local".as_bytes()]
         );
 
         drop(live);
@@ -776,11 +776,11 @@ mod tests {
                 .iter()
                 .map(|module| module.name())
                 .collect::<Vec<_>>(),
-            ["local"]
+            ["local".as_bytes()]
         );
         assert_eq!(
             scope.iter().map(|module| module.name()).collect::<Vec<_>>(),
-            ["local"]
+            ["local".as_bytes()]
         );
     }
 
@@ -804,7 +804,11 @@ mod tests {
 
         assert_eq!(
             scope.iter().map(|module| module.name()).collect::<Vec<_>>(),
-            ["root", "dependency", "unrelated"]
+            [
+                "root".as_bytes(),
+                "dependency".as_bytes(),
+                "unrelated".as_bytes()
+            ]
         );
         assert_eq!(
             scope
@@ -812,7 +816,7 @@ mod tests {
                 .iter()
                 .map(|module| module.name())
                 .collect::<Vec<_>>(),
-            ["dependency"]
+            ["dependency".as_bytes()]
         );
         assert_eq!(
             weak.upgrade_local()
@@ -820,7 +824,7 @@ mod tests {
                 .iter()
                 .map(|module| module.name())
                 .collect::<Vec<_>>(),
-            ["dependency"]
+            ["dependency".as_bytes()]
         );
 
         drop(scope);

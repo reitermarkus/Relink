@@ -439,35 +439,35 @@ mod tests {
 
     #[test]
     fn parent_falls_back_to_current_directory() {
-        assert_eq!(Path::new("liba.so").parent().as_str(), ".");
-        assert_eq!(Path::new("target/liba.so").parent().as_str(), "target");
-        assert_eq!(Path::new("/liba.so").parent().as_str(), "/");
+        assert_eq!(Path::new("liba.so").parent().as_bytes(), b".");
+        assert_eq!(Path::new("target/liba.so").parent().as_bytes(), b"target");
+        assert_eq!(Path::new("/liba.so").parent().as_bytes(), b"/");
     }
 
     #[test]
     fn file_name_returns_last_component() {
-        assert_eq!(Path::new("liba.so").file_name(), "liba.so");
-        assert_eq!(Path::new("target/liba.so").file_name(), "liba.so");
-        assert_eq!(Path::new("target\\liba.so").file_name(), "liba.so");
+        assert_eq!(Path::new("liba.so").file_name(), b"liba.so");
+        assert_eq!(Path::new("target/liba.so").file_name(), b"liba.so");
+        assert_eq!(Path::new("target\\liba.so").file_name(), b"liba.so");
     }
 
     #[test]
     fn join_avoids_duplicate_separators() {
         assert_eq!(
-            Path::new("target").join("liba.so").as_str(),
-            "target/liba.so"
+            Path::new("target").join("liba.so").as_bytes(),
+            b"target/liba.so"
         );
         assert_eq!(
-            Path::new("target/").join("liba.so").as_str(),
-            "target/liba.so"
+            Path::new("target/").join("liba.so").as_bytes(),
+            b"target/liba.so"
         );
-        assert_eq!(Path::new(".").join("liba.so").as_str(), "liba.so");
+        assert_eq!(Path::new(".").join("liba.so").as_bytes(), b"liba.so");
     }
 
     #[test]
     fn owned_path_derefs_to_borrowed_path() {
         let path = PathBuf::from("target/liba.so");
         assert!(path.has_dir_separator());
-        assert_eq!(path.parent().as_str(), "target");
+        assert_eq!(path.parent().as_bytes(), b"target");
     }
 }

@@ -336,7 +336,7 @@ impl RawFile {
             let res = syscalls::raw_syscall!(Sysno::open, c_path.as_ptr(), RDONLY, 0);
             if res > -4096isize as usize {
                 return Err(IoError::OpenFailed {
-                    path: path.into(),
+                    path: path.as_bytes().into(),
                     code: (-(res as isize)) as u32,
                 }
                 .into());
@@ -353,7 +353,7 @@ impl RawFile {
             let res = syscalls::raw_syscall!(Sysno::openat, AT_FDCWD, c_path.as_ptr(), RDONLY, 0);
             if res > -4096isize as usize {
                 return Err(IoError::OpenFailed {
-                    path: path.into(),
+                    path: path.as_bytes().into(),
                     code: (-(res as isize)) as u32,
                 }
                 .into());

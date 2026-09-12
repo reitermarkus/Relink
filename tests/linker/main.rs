@@ -100,7 +100,10 @@ impl RelocationObserver for InitRecorder {
         let calls = Arc::clone(&self.calls);
         let fail = self.fail;
         event.lifecycle_mut().set_init_hook(move |event| {
-            calls.lock().unwrap().push(event.name().to_string());
+            calls
+                .lock()
+                .unwrap()
+                .push(event.name().escape_ascii().to_string());
             event.lifecycle_mut().clear();
             if fail {
                 return Err(elf_loader::error::CustomError::message("initializer failed").into());
@@ -110,7 +113,10 @@ impl RelocationObserver for InitRecorder {
         if self.record_fini {
             let calls = Arc::clone(&self.calls);
             event.lifecycle_mut().set_fini_hook(move |event| {
-                calls.lock().unwrap().push(format!("fini:{}", event.name()));
+                calls
+                    .lock()
+                    .unwrap()
+                    .push(format!("fini:{}", event.name().escape_ascii()));
                 event.lifecycle_mut().clear();
                 Ok(())
             });

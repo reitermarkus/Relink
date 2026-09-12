@@ -307,7 +307,7 @@ impl RawFile {
         if handle == INVALID_HANDLE_VALUE {
             let err_code = unsafe { GetLastError() };
             return Err(IoError::OpenFailed {
-                path: path.into(),
+                path: path.as_bytes().into(),
                 code: err_code,
             }
             .into());
